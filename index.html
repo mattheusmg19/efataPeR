@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Jogo de Perguntas por Jogador</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+    body {
+      font-family: 'Outfit';
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 25px;
+    }
+    h2{
+        font-size: 15px;
+        margin: 5px 0;
+    }
+    input, button, select, textarea {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-family: 'Outfit';
+    }
+    button {
+      font-family: 'Outfit';
+      font-weight: bold;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .pergunta-sorteada {
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 15px;
+      border-left: 5px solid #2196F3;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+    #perguntaInput {
+      height: 150px;
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: solid 1px #ddd;
+      resize: none;
+    }
+    #contagemPerguntas {
+      margin-top: 15px;
+      background: #fff;
+      padding: 1px 15px;
+      border-radius: 5px;
+      border-left: 5px solid rgb(219, 42, 42);
+    }
+    #sortear{
+        background-color: #2196F3;
+    }
+    header{
+        margin: -20px;
+        background-color: black;
+        display: flex;
+        justify-content: center;
+    }
+
+    header img{
+        width: 40%;
+    }
+  </style>
+</head>
+<body>
+
+    <header><img src="efata.png"></header>
+
+  <h1>Jogo de Perguntas</h1>
+
+  <div class="section">
+    <h2>Adicionar Perguntas</h2>
+    <input type="text" id="jogadorInput" placeholder="Nome do jogador">
+    <textarea id="perguntaInput" placeholder="Digite uma pergunta"></textarea>
+    <button onclick="adicionarPergunta()">Adicionar Pergunta</button>
+
+    <div id="contagemPerguntas">
+      <h3>Perguntas por Jogador:</h3>
+      <ul id="listaContagem"></ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Sortear Pergunta</h2>
+    <select id="jogadorSelect">
+      <option value="">Quem vai responder?</option>
+    </select>
+    <button onclick="sortearPergunta()" id="sortear">Sortear Pergunta</button>
+    <div class="pergunta-sorteada" id="resultado"></div>
+  </div>
+
+  <script>
+    const perguntas = [];
+    const perguntasRestantes = [];
+    const jogadores = new Set();
+    const contagem = {};
+
+    function atualizarSelectJogadores() {
+      const select = document.getElementById('jogadorSelect');
+      select.innerHTML = '<option value="">Quem vai responder?</option>';
+      jogadores.forEach(jogador => {
+        const option = document.createElement('option');
+        option.value = jogador;
+        option.textContent = jogador;
+        select.appendChild(option);
+      });
+    }
+
+    function atualizarContagemUI() {
+      const lista = document.getElementById('listaContagem');
+      lista.innerHTML = '';
+      for (let jogador in contagem) {
+        const li = document.createElement('li');
+        li.textContent = `${jogador}: ${contagem[jogador]} pergunta(s)`;
+        lista.appendChild(li);
+      }
+    }
+
+    function adicionarPergunta() {
+      const nome = document.getElementById('jogadorInput').value.trim();
+      const texto = document.getElementById('perguntaInput').value.trim();
+
+      if (!nome || !texto) {
+        alert("Preencha o nome do jogador e a pergunta.");
+        return;
+      }
+
+      const pergunta = {
+        texto: texto,
+        autor: nome
+      };
+
+      perguntas.push(pergunta);
+      perguntasRestantes.push(pergunta);
+      jogadores.add(nome);
+
+      if (contagem[nome]) {
+        contagem[nome]++;
+      } else {
+        contagem[nome] = 1;
+      }
+
+      atualizarSelectJogadores();
+      atualizarContagemUI();
+
+      document.getElementById('perguntaInput').value = "";
+      alert("Pergunta adicionada!");
+    }
+
+    function sortearPergunta() {
+      const nomeJogador = document.getElementById('jogadorSelect').value;
+      const resultado = document.getElementById('resultado');
+
+      if (!nomeJogador) {
+        alert("Selecione o jogador que vai responder.");
+        return;
+      }
+
+      const elegiveis = perguntasRestantes.filter(p => p.autor !== nomeJogador);
+
+      if (elegiveis.length === 0) {
+        if (perguntas.length === 0) {
+          resultado.textContent = "Nenhuma pergunta foi adicionada ainda.";
+        } else {
+          resultado.textContent = "Nenhuma pergunta restante para esse jogador (todas são dele).";
+        }
+        return;
+      }
+
+      const indice = Math.floor(Math.random() * elegiveis.length);
+      const perguntaSorteada = elegiveis[indice];
+
+      const indexGlobal = perguntasRestantes.indexOf(perguntaSorteada);
+      if (indexGlobal !== -1) perguntasRestantes.splice(indexGlobal, 1);
+
+      resultado.innerHTML = `${perguntaSorteada.texto}<br><small><em>enviada por ${perguntaSorteada.autor}</em></small>`;
+    }
+  </script>
+
+</body>
+</html>
