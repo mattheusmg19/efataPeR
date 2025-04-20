@@ -12,14 +12,14 @@
       margin: auto;
     }
     h1 {
-        margin-top: 60px;
+        margin: 60px 0 0 0;
         text-align: center;
         font-size: 45px;
         color: white;
     }
     h2{
         font-size: 35px;
-        margin: 5px 0;
+        margin: 25px 0 0 0;
         color: white;
     }
     input, button, select, textarea {
@@ -78,6 +78,24 @@
       border-radius: 15px;
       border-left: 15px solid rgb(219, 42, 42);
       font-size: 25px;
+      width: 46%;
+      display: inline-block;
+    }
+    #placar {
+      margin-top: 15px;
+      background: #444;
+      color: white;
+      padding: 1px 15px;
+      border-radius: 15px;
+      border-left: 15px solid #4CAF50;
+      font-size: 25px;
+      width: 46%;
+      display: inline-block;
+      margin-left: 20px;
+    }
+    .caixas{
+        display: flex;
+        margin: 20px 0;
     }
     #sortear{
         background-color: #2196F3;
@@ -90,7 +108,38 @@
     }
 
     header img{
-        width: 40%;
+        width: 30%;
+    }
+    .alternativa {
+      background-color: #555;
+      color: white;
+      padding: 20px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 38px;
+    }
+    #alternativaCorreta{
+        width: 49%
+    }
+    .alternativa:hover {
+      background-color: #777;
+    }
+    .alternativa-correta {
+      background-color: #4CAF50;
+    }
+    .alternativa-errada {
+      background-color: #F44336;
+    }
+    .dividebutton{
+        display: flex;
+        align-itens: center;
+        justify-content: space-between;
+    }
+    #adict{
+        width: 49%;
+        float: right;
     }
   </style>
 </head>
@@ -101,16 +150,28 @@
   <h1>Perguntas Bíblicas</h1>
 
   <div class="section">
-    <h2>Adicionar Perguntas</h2>
     <input type="text" id="jogadorInput" placeholder="Nome do jogador">
+    <h2>Adicionar Perguntas</h2>
     <textarea id="perguntaInput" placeholder="Digite uma pergunta"></textarea>
-    <button onclick="adicionarPergunta()">Adicionar Pergunta</button>
-
+    <input type="text" id="alternativaA" placeholder="Alternativa A">
+    <input type="text" id="alternativaB" placeholder="Alternativa B">
+    <input type="text" id="alternativaC" placeholder="Alternativa C">
+    <input type="text" id="alternativaD" placeholder="Alternativa D">
+    <div class="dividebutton">
+    <input type="text" id="alternativaCorreta" placeholder="Qual letra correta?">
+    <button onclick="adicionarPergunta()" id="adict">Adicionar Pergunta</button>
+    </div>
+  <div class="caixas">
     <div id="contagemPerguntas">
       <h3>Perguntas por Jogador:</h3>
       <ul id="listaContagem"></ul>
     </div>
+    <div id="placar">
+      <h3>Placar:</h3>
+      <ul id="listaPlacar"></ul>
+    </div>
   </div>
+</div>
 
   <div class="section">
     <h2>Sortear Pergunta</h2>
@@ -119,6 +180,7 @@
     </select>
     <button onclick="sortearPergunta()" id="sortear">Sortear Pergunta</button>
     <div class="pergunta-sorteada" id="resultado"></div>
+    <div id="alternativas"></div>
   </div>
 
   <script>
@@ -126,6 +188,7 @@
     const perguntasRestantes = [];
     const jogadores = new Set();
     const contagem = {};
+    const placar = {};
 
     function atualizarSelectJogadores() {
       const select = document.getElementById('jogadorSelect');
@@ -148,18 +211,40 @@
       }
     }
 
+    function atualizarPlacarUI() {
+      const listaPlacar = document.getElementById('listaPlacar');
+      listaPlacar.innerHTML = '';
+      for (let jogador in placar) {
+        const li = document.createElement('li');
+        li.textContent = `${jogador}: ${placar[jogador]} ponto(s)`;
+        listaPlacar.appendChild(li);
+      }
+    }
+
     function adicionarPergunta() {
       const nome = document.getElementById('jogadorInput').value.trim();
       const texto = document.getElementById('perguntaInput').value.trim();
+      const alternativaA = document.getElementById('alternativaA').value.trim();
+      const alternativaB = document.getElementById('alternativaB').value.trim();
+      const alternativaC = document.getElementById('alternativaC').value.trim();
+      const alternativaD = document.getElementById('alternativaD').value.trim();
+      const alternativaCorreta = document.getElementById('alternativaCorreta').value.trim().toUpperCase();
 
-      if (!nome || !texto) {
-        alert("Preencha o nome do jogador e a pergunta.");
+      if (!nome || !texto || !alternativaA || !alternativaB || !alternativaC || !alternativaD || !alternativaCorreta) {
+        alert("Preencha todos os campos.");
         return;
       }
 
       const pergunta = {
         texto: texto,
-        autor: nome
+        autor: nome,
+        alternativas: {
+          A: alternativaA,
+          B: alternativaB,
+          C: alternativaC,
+          D: alternativaD
+        },
+        alternativaCorreta: alternativaCorreta
       };
 
       perguntas.push(pergunta);
@@ -172,16 +257,27 @@
         contagem[nome] = 1;
       }
 
+      if (!placar[nome]) {
+        placar[nome] = 0;
+      }
+
       atualizarSelectJogadores();
       atualizarContagemUI();
+      atualizarPlacarUI();
 
       document.getElementById('perguntaInput').value = "";
+      document.getElementById('alternativaA').value = "";
+      document.getElementById('alternativaB').value = "";
+      document.getElementById('alternativaC').value = "";
+      document.getElementById('alternativaD').value = "";
+      document.getElementById('alternativaCorreta').value = "";
       alert("Pergunta adicionada!");
     }
 
     function sortearPergunta() {
       const nomeJogador = document.getElementById('jogadorSelect').value;
       const resultado = document.getElementById('resultado');
+      const alternativasDiv = document.getElementById('alternativas');
 
       if (!nomeJogador) {
         alert("Selecione o jogador que vai responder.");
@@ -203,11 +299,27 @@
       const perguntaSorteada = elegiveis[indice];
 
       const indexGlobal = perguntasRestantes.indexOf(perguntaSorteada);
-      if (indexGlobal !== -1) perguntasRestantes.splice(indexGlobal, 1);
+      perguntasRestantes.splice(indexGlobal, 1);
 
       resultado.innerHTML = `${perguntaSorteada.texto}<br><small><em>enviada por ${perguntaSorteada.autor}</em></small>`;
+      
+      alternativasDiv.innerHTML = '';
+      for (let alternativa in perguntaSorteada.alternativas) {
+        const div = document.createElement('div');
+        div.classList.add('alternativa');
+        div.textContent = perguntaSorteada.alternativas[alternativa];
+        div.onclick = function() {
+          if (alternativa === perguntaSorteada.alternativaCorreta) {
+            placar[nomeJogador]++;
+            alert('Resposta correta!');
+          } else {
+            alert('Resposta errada!');
+          }
+          atualizarPlacarUI();
+        };
+        alternativasDiv.appendChild(div);
+      }
     }
   </script>
-
 </body>
 </html>
