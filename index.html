@@ -23,7 +23,7 @@
         color: white;
     }
     input, button, select, textarea {
-      padding: 30px;
+      padding: 20px;
       margin-top: 30px;
       width: 100%;
       box-sizing: border-box;
@@ -36,7 +36,7 @@
         border: solid 1px #555;
         color: white;
         outline: none;
-        font-size: 40px;
+        font-size: 35px;
     }
     button {
       font-family: 'Outfit';
@@ -71,10 +71,10 @@
       resize: none;
     }
     #contagemPerguntas {
-      margin-top: 15px;
+      margin-top: 10px;
       background: #444;
       color: white;
-      padding: 1px 15px;
+      padding: 0 15px;
       border-radius: 15px;
       border-left: 15px solid rgb(219, 42, 42);
       font-size: 25px;
@@ -96,6 +96,9 @@
     .caixas{
         display: flex;
         margin: 20px 0;
+    }
+    .caixas h3{
+        font-size: 35px;
     }
     #sortear{
         background-color: #2196F3;
@@ -141,6 +144,10 @@
         width: 49%;
         float: right;
     }
+    .sorteo{
+        display: flex;
+        gap: 20px;
+    }
   </style>
 </head>
 <body>
@@ -163,7 +170,7 @@
     </div>
   <div class="caixas">
     <div id="contagemPerguntas">
-      <h3>Perguntas por Jogador:</h3>
+      <h3>Qtde. perguntas:</h3>
       <ul id="listaContagem"></ul>
     </div>
     <div id="placar">
@@ -174,11 +181,13 @@
 </div>
 
   <div class="section">
-    <h2>Sortear Pergunta</h2>
+      <h2>Sortear Pergunta</h2>
+      <div class="sorteo">
     <select id="jogadorSelect">
       <option value="">Quem vai responder?</option>
     </select>
     <button onclick="sortearPergunta()" id="sortear">Sortear Pergunta</button>
+    </div>
     <div class="pergunta-sorteada" id="resultado"></div>
     <div id="alternativas"></div>
   </div>
